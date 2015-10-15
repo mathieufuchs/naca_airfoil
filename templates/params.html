@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cats Everywhere email addresses</title>
+  </head>
+  <body>
+    <p>Here are the user parameters we have collected:</p>
+    <ul>
+      {% for i, j in params.items() %}
+      <li>{{ i }} : {{ j }}</li>
+      {% endfor %}
+    </ul>
+    <p>Let's GO!</p>
+  </body>
+</html>
