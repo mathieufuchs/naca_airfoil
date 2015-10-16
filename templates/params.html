@@ -1,15 +1,26 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Cats Everywhere email addresses</title>
+    <title>Results</title>
   </head>
   <body>
-    <p>Here are the user parameters we have collected:</p>
+    <p>Here are the user parameters we have collected for the meshes:</p>
     <ul>
       {% for i, j in params.items() %}
       <li>{{ i }} : {{ j }}</li>
       {% endfor %}
     </ul>
-    <p>Let's GO!</p>
+    <p>Here are the user parameters we have collected for the simulation:</p>
+    <ul>
+      {% for i, j in airfoil_params.items() %}
+      <li>{{ i }} : {{ j }}</li>
+      {% endfor %}
+    </ul>
+    <p>LET'S GO!</p>
+    <h3>Status of the computations</h3>
+    <p>{{status}}</p>
+    <h2>RESULTS</h2>
+    <p>{{results}}</p>
   </body>
 </html>
+

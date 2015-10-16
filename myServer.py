@@ -1,6 +1,8 @@
 from flask import Flask
 from flask import render_template
 from flask import request, redirect
+from tasks import computeResults
+from celery import Celery, group
 import subprocess
 
 app = Flask(__name__)
@@ -8,11 +10,10 @@ app = Flask(__name__)
 params = {'angle_start':0, 'angle_stop':30, 
 'n_angles':10, 'n_nodes':200, 'n_levels':3}
 
-#angle_start=0
-#angle_stop=30
-#n_angles=10
-#n_nodes=200
-#n_levels=3
+airfoil_params = {'num_samples':10, 'visc':0.0001, 'speed':10, 'T':1}
+
+status="PENDING"
+results="Not ready yet... Reload the page!"
 
 @app.route('/')
 def index():
@@ -24,25 +25,55 @@ def hello(name=None):
     
 @app.route('/signup', methods = ['POST'])
 def signup():
-    toRun = './run.sh'
     for i in params.keys():
         params[i]  = request.form[i]
-        toRun = toRun + ' ' + params[i]
-    subprocess.call(toRun, shell = True)
-    print toRun
+    
     return redirect('/')
-#angle_start = request.form['angle_start']
-    #angle_stop = request.form['angle_stop']
-    #n_angles = request.form['n_angles']
-    #n_nodes= request.form['n_nodes']
-    #n_levels = request.form['n_levels']    
+    
+@app.route('/signup2', methods = ['POST'])
+def signup2():
+    for i in airfoil_params.keys():
+        airfoil_params[i] = request.form[i]
+        
+    return redirect('/')
 
+@app.route('/run', methods = ['POST'])
+def run():      
+    print "first"
+    job = group(computeResults.s(params, airfoil_params))
+    print job
+    global task 
+    task= job.apply_async()
+    
+    print "Celery is working..."
+    
+    return redirect('/params')
+
+@app.route('/showParams', methods = ['POST'])
+def show():     
+    return redirect('/params')
+    
 @app.route('/params')
 def emails():
-    return render_template('params.html', params=params)
+    try:
+        if task.ready() == False:
+            return render_template('params.html', params=params, airfoil_params=airfoil_params,
+            status=status, results=results)
+        else:
+            print "in app"
+            status = "DONE"
+            toReturn = task.get()
+            results = toReturn
+            print "got results"
+            return render_template('params.html', params=params, airfoil_params=airfoil_params,
+            status=status, results=results)
+    except:
+        return render_template('params.html', params=params, airfoil_params=airfoil_params,
+            status="PENDING", results="Not ready")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
+    
     
     
     

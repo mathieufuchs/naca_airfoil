@@ -2,7 +2,8 @@
 <title>Flaskr</title>
 <body>
 <form action="/signup" method="post">
-Angle_start : <br> 
+ <p>Parameters for the creating the meshes</p>
+  Angle_start : <br> 
   <input type="text" name="angle_start"></input>
   <br>
   Angle_stop: <br> 
@@ -18,6 +19,28 @@ Angle_start : <br>
   <input type="text" name="n_levels"></input>
   <br>
   <input type="submit" value="Signup"></input>
+</form>
+<form action="/signup2" method="post">
+  <p>Parameters for the airfoil simulation</p>
+  num_samples : <br> 
+  <input type="text" name="num_samples"></input>
+  <br>
+  visc: <br> 
+  <input type="text" name="visc"></input>
+  <br>
+  speed : <br> 
+  <input type="text" name="speed"></input>
+  <br>
+  T: <br> 
+  <input type="text" name="T"></input>
+  <br>
+  <input type="submit" value="Signup2"></input>
+</form>
+<form action="/run" method="post">
+<input type="submit" value="RUN"></input></p>
+</form>
+<form action="/showParams" method="post">
+<input type="submit" value="SHOW PARAMS"></input></p>
 </form>
 </body>
 </div>
