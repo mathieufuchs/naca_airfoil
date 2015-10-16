@@ -1,7 +1,6 @@
 from celery import Celery
 import os
 import glob
-import swiftclient.client
 import json
 import time
 import urllib2
