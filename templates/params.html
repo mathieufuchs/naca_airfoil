@@ -2,8 +2,23 @@
 <html>
   <head>
     <title>Results</title>
+    <style>
+div.relative {
+    position: relative;
+    margin-left:auto; 
+    margin-top: auto;
+    border: 1px solid #000;
+} 
+
+div.absolute {
+    position: relative;
+    margin-down: auto;
+    margin-right: auto;
+}
+</style>
   </head>
   <body>
+  <div class="relative">
     <p>Here are the user parameters we have collected for the meshes:</p>
     <ul>
       {% for i, j in params.items() %}
@@ -21,6 +36,12 @@
     <p>{{status}}</p>
     <h2>RESULTS</h2>
     <p>{{results}}</p>
+    <div class="relative">
+    <p> <img src ={{ url_for('static', filename = 'tmp.png') }} style="width: 40%; height: 50%; float: left; " alt="results" title="Results" border="0">
+<img src ={{ url_for('static', filename = 'tmp2.png') }} style="width: 40%; height: 50%; float: right; " alt="results" title="Results" border="0">
+</p>
+  </div>
+</div>
   </body>
 </html>
 

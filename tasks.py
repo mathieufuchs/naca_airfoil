@@ -11,7 +11,7 @@ app = Celery('tasks', backend='amqp', broker='amqp://ma:fu@130.238.29.7:5672/maf
 def convertToXML():
 	meshes = glob.glob("msh/*.msh")
 	for fn in meshes:
-		name = "dolfin-convert " + fn + " " + fn[:-3] + ".xml"
+		name = "dolfin-convert " + fn + " " + fn[:-3] + "xml"
 	subprocess.check_call(name, shell=True)
 
 def runAirfoil(d):
@@ -21,14 +21,15 @@ def runAirfoil(d):
 	subprocess.check_call(name, shell=True)
 
 @app.task()
-def computeResults(d, airfoil_params):
-	toRun = './run.sh %s %s %s %s %s' %(d['angle_start'], d['angle_stop'], d['n_angles'], d['n_nodes'], d['n_levels'])
+def computeResults(d, airfoil_params, i):
+	toRun = './run.sh %s %s %s %s %s' %(i, i, 1, d['n_nodes'], d['n_levels'])
 	print "Running: " + toRun
 	subprocess.check_call(toRun, shell = True)
 	print "Finnished running"
 	convertToXML()
 
 	runAirfoil(airfoil_params)
-	print "reaches here"
-	return "all tasks are done"
+	toReturn = open("results/drag_ligt.m", 'r').read()
+    print toReturn
+    return toReturn
 
