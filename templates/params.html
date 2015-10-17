@@ -3,22 +3,32 @@
   <head>
     <title>Results</title>
     <style>
-div.relative {
-    position: relative;
-    margin-left:auto; 
-    margin-top: auto;
-    border: 1px solid #000;
-} 
-
-div.absolute {
-    position: relative;
-    margin-down: auto;
-    margin-right: auto;
+#container {
+position:relative
+}
+#div1, #div2 {
+}
+#div1 {
+width: 40%;
+}
+#div2 {
+position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        width: 60%;
 }
 </style>
+<script>
+function display(t) {
+    document.getElementById("disp").src = '/static/' +t 
+}
+</script>
   </head>
   <body>
-  <div class="relative">
+  <div id="container">
+<div id="div1">
+  <a href=/ >Return to Index</a>
     <p>Here are the user parameters we have collected for the meshes:</p>
     <ul>
       {% for i, j in params.items() %}
@@ -36,12 +46,19 @@ div.absolute {
     <p>{{status}}</p>
     <h2>RESULTS</h2>
     <p>{{results}}</p>
-    <div class="relative">
-    <p> <img src ={{ url_for('static', filename = 'tmp.png') }} style="width: 40%; height: 50%; float: left; " alt="results" title="Results" border="0">
-<img src ={{ url_for('static', filename = 'tmp2.png') }} style="width: 40%; height: 50%; float: right; " alt="results" title="Results" border="0">
+    
+    <p>
+    {% for i in images %}   
+    <button onclick="display('{{i}}');" > {{i}}</button>
+{% endfor %}
+</p>
+</div>
+    <div id="div2">
+    <p> <img id = "disp" src ={{ url_for('static', filename = 'tmp.png') }} style="width: 100%; height: 100%; float: left; " alt="results" title="Results" border="0">
 </p>
   </div>
-</div>
+    </div>
+
   </body>
 </html>
 

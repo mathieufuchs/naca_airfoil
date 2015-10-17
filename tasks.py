@@ -30,6 +30,6 @@ def computeResults(d, airfoil_params, i):
 
 	runAirfoil(airfoil_params)
 	toReturn = open("results/drag_ligt.m", 'r').read()
-    print toReturn
-    return toReturn
+	print toReturn
+	return toReturn, "_a"+str(i) +"_n"+str(d['n_nodes'])
 
