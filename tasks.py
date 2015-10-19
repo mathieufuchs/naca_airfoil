@@ -24,7 +24,6 @@ def runAirfoil(d):
 
 @app.task()
 def computeResults(d, airfoil_params, i):
-	subprocess.check_call("sudo su")
 	subprocess.check_call("sudo rm msh/*", shell=True)
 	subprocess.check_call("sudo rm geo/*", shell=True)
 	toRun = 'sudo ./run.sh %s %s %s %s %s' %(i, i, 1, d['n_nodes'], d['n_levels'])
