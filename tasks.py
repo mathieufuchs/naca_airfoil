@@ -25,7 +25,7 @@ def runAirfoil(d):
 
 @app.task()
 def computeResults(d, airfoil_params, i):
-	subprocess.check_call("sudo chown -R ubuntu . > file.log")
+	subprocess.check_call("sudo chown -R ubuntu ./ > file.log")
 	subprocess.check_call("rm msh/*", shell=True)
 	subprocess.check_call("rm geo/*", shell=True)
 	toRun = './run.sh %s %s %s %s %s' %(i, i, 1, d['n_nodes'], d['n_levels'])
