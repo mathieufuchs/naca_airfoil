@@ -17,11 +17,16 @@ def convertToXML():
 def runAirfoil(d):
 	xmlFiles = glob.glob("msh/*.xml")
 	for fn in xmlFiles:
-		name = "./navier_stokes_solver/airfoil %s %s %s %s %s" %(d['num_samples'], d['visc'], d['speed'], d['T'], fn)
+		print "Starting airfoil"
+		name = "./navier_stokes_solver/airfoil %s %s %s %s %s > file.log" %(d['num_samples'], d['visc'], d['speed'], d['T'], fn)
 		subprocess.check_call(name, shell=True)
+		print "Finnished airfoil"
 
 @app.task()
 def computeResults(d, airfoil_params, i):
+	subprocess.check_call("sudo chown -R ubuntu . > file.log"
+	subprocess.check_call("rm msh/*", shell=True)
+	subprocess.check_call("rm geo/*", shell=True)
 	toRun = './run.sh %s %s %s %s %s' %(i, i, 1, d['n_nodes'], d['n_levels'])
 	print "Running: " + toRun
 	subprocess.check_call(toRun, shell = True)

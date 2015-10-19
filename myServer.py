@@ -37,10 +37,10 @@ def plot(image, x, y, z, c):
 	ax2.plot(x, z, c)
 	a.savefig(image, format='png')
 
-params = {'angle_start':0, 'angle_stop':30, 
-'n_angles':10, 'n_nodes':200, 'n_levels':3}
+params = {'angle_start':2, 'angle_stop':4, 
+'n_angles':1, 'n_nodes':10, 'n_levels':1}
 
-airfoil_params = {'num_samples':10, 'visc':0.0001, 'speed':10, 'T':1}
+airfoil_params = {'num_samples':10, 'visc':0.001, 'speed':10, 'T':0.1}
 
 status="PENDING"
 results="Not ready yet... Reload the page!"
@@ -75,13 +75,24 @@ def run():
 	if not (1<= num(params["n_levels"]) <= 3) :
 		params["n_levels"] = "1"
 	
+	params["n_levels"] = "0"
 	if not(1<= num(params['n_nodes']) <=200):
 		params['n_nodes']= "10"
 	
 	if (num(params['angle_stop']) - num(params['angle_start']) >= num(params['n_angles']) ):
 		params['n_angles'] = str((num(params['angle_stop']) - num(params['angle_start']))/2)
-	
+		
 	angList = distributeJob(num(params['angle_start']), num(params['angle_stop']), num(params['n_angles']))
+	names = os.listdir(os.path.join(app.static_folder))
+	for i in angList:
+		nameInputed = "_a"+str(i) +"_n"+str(params['n_nodes'])
+		nameToCheck = "air"+ nameInputed + ".png"
+		for j in names:
+			if j == nameToCheck:
+				return render_template('params.html', params=params, airfoil_params=airfoil_params,
+                status="This simulation has already been done", results="Click on the wanted plot to display it", images = names)
+	 
+
 	job = group(computeResults.s(params, airfoil_params, i) for i in angList)
 	print job
 	global task 
@@ -116,7 +127,12 @@ def emails():
 		print "Task Done"
 		status = "DONE"
 		if show == 0:
-			objects = task.get()
+			try:
+				objects = task.get()
+			except:
+				names = os.listdir(os.path.join(app.static_folder))
+				return render_template('params.html', params=params, airfoil_params=airfoil_params,
+                status="FAILED", results="Something went wrong, return to index and try again...", images=names)
 			for o in objects:
 				print o
 				obj = o[0]
