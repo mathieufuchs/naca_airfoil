@@ -13,7 +13,6 @@ def convertToXML():
 	meshes = glob.glob("msh/*.msh")
 	for fn in meshes:
 		gmsh2xml(fn, fn[:-3] + "xml")
-		subprocess.check_call(name, shell=True)
 
 def runAirfoil(d):
 	xmlFiles = glob.glob("msh/*.xml")
@@ -25,7 +24,7 @@ def runAirfoil(d):
 
 @app.task()
 def computeResults(d, airfoil_params, i):
-	#subprocess.check_call("sudo chown -R ubuntu /home/ubuntu/naca_airfoil > file.log")
+	subprocess.check_call("sudo su")
 	subprocess.check_call("sudo rm msh/*", shell=True)
 	subprocess.check_call("sudo rm geo/*", shell=True)
 	toRun = 'sudo ./run.sh %s %s %s %s %s' %(i, i, 1, d['n_nodes'], d['n_levels'])
