@@ -72,6 +72,15 @@ def signup2():
 @app.route('/run', methods = ['POST'])
 def run():		
 	print "first"
+	if not (1<= num(params["n_levels"]) <= 3) :
+		params["n_levels"] = "1"
+	
+	if not(1<= num(params['n_nodes']) <=200):
+		params['n_nodes']= "10"
+	
+	if (num(params['angle_stop']) - num(params['angle_start']) >= num(params['n_angles']) ):
+		params['n_angles'] = str((num(params['angle_stop']) - num(params['angle_start']))/2)
+	
 	angList = distributeJob(num(params['angle_start']), num(params['angle_stop']), num(params['n_angles']))
 	job = group(computeResults.s(params, airfoil_params, i) for i in angList)
 	print job
