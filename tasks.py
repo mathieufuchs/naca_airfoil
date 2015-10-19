@@ -4,14 +4,15 @@ import glob
 import json
 import time
 import urllib2
-import subprocess 
+import subprocess
+from dolfin_convert import gmsh2xml 
 app = Celery('tasks', backend='amqp', broker='amqp://ma:fu@130.238.29.150:5672/mafu')
 
 
 def convertToXML():
 	meshes = glob.glob("msh/*.msh")
 	for fn in meshes:
-		name = "dolfin-convert " + fn + " " + fn[:-3] + "xml"
+		gmsh2xml(fn, fn[:-3] + "xml")
 		subprocess.check_call(name, shell=True)
 
 def runAirfoil(d):
@@ -24,7 +25,7 @@ def runAirfoil(d):
 
 @app.task()
 def computeResults(d, airfoil_params, i):
-	subprocess.check_call("sudo chown -R ubuntu . > file.log"
+	subprocess.check_call("sudo chown -R ubuntu . > file.log")
 	subprocess.check_call("rm msh/*", shell=True)
 	subprocess.check_call("rm geo/*", shell=True)
 	toRun = './run.sh %s %s %s %s %s' %(i, i, 1, d['n_nodes'], d['n_levels'])
