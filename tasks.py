@@ -12,13 +12,13 @@ def convertToXML():
 	meshes = glob.glob("msh/*.msh")
 	for fn in meshes:
 		name = "dolfin-convert " + fn + " " + fn[:-3] + "xml"
-	subprocess.check_call(name, shell=True)
+		subprocess.check_call(name, shell=True)
 
 def runAirfoil(d):
 	xmlFiles = glob.glob("msh/*.xml")
 	for fn in xmlFiles:
 		name = "./navier_stokes_solver/airfoil %s %s %s %s %s" %(d['num_samples'], d['visc'], d['speed'], d['T'], fn)
-	subprocess.check_call(name, shell=True)
+		subprocess.check_call(name, shell=True)
 
 @app.task()
 def computeResults(d, airfoil_params, i):
