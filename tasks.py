@@ -5,7 +5,7 @@ import json
 import time
 import urllib2
 import subprocess 
-app = Celery('tasks', backend='amqp', broker='amqp://ma:fu@130.238.29.7:5672/mafu')
+app = Celery('tasks', backend='amqp', broker='amqp://ma:fu@130.238.29.150:5672/mafu')
 
 
 def convertToXML():
