@@ -9,16 +9,16 @@ from dolfin_convert import gmsh2xml
 app = Celery('tasks', backend='amqp', broker='amqp://ma:fu@130.238.29.150:5672/mafu')
 
 
-def convertToXML():
-	meshes = glob.glob("msh/*.msh")
+def convertToXML(i):
+	meshes = glob.glob("msh/r*a" + str(i) + "n*.msh")
 	for fn in meshes:
 		gmsh2xml(fn, fn[:-3] + "xml")
 
-def runAirfoil(d):
-	xmlFiles = glob.glob("msh/*.xml")
+def runAirfoil(d, i):
+	xmlFiles = glob.glob("msh/r*a" + str(i) + "n*.xml")
 	for fn in xmlFiles:
-		print "Starting airfoil"
 		name = "sudo ./navier_stokes_solver/airfoil %s %s %s %s %s > file.log" %(d['num_samples'], d['visc'], d['speed'], d['T'], fn)
+		print "Starting airfoil: " + name
 		subprocess.check_call(name, shell=True)
 		print "Finnished airfoil"
 
@@ -30,9 +30,9 @@ def computeResults(d, airfoil_params, i):
 	print "Running: " + toRun
 	subprocess.check_call(toRun, shell = True)
 	print "Finnished running"
-	convertToXML()
+	convertToXML(i, d['n_nodes'])
 
-	runAirfoil(airfoil_params)
+	runAirfoil(airfoil_params, i)
 	toReturn = open("results/drag_ligt.m", 'r').read()
 	print toReturn
 	return toReturn, "_a"+str(i) +"_n"+str(d['n_nodes'])
