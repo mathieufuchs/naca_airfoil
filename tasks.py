@@ -6,7 +6,7 @@ import time
 import urllib2
 import subprocess
 from dolfin_convert import gmsh2xml 
-app = Celery('tasks', backend='amqp', broker='amqp://ma:fu@130.238.29.150:5672/mafu')
+app = Celery('tasks', backend='amqp', broker='amqp://guest@localhost//')
 
 
 def convertToXML(i):
@@ -30,7 +30,7 @@ def computeResults(d, airfoil_params, i):
 	print "Running: " + toRun
 	subprocess.check_call(toRun, shell = True)
 	print "Finnished running"
-	convertToXML(i, d['n_nodes'])
+	convertToXML(i) 
 
 	runAirfoil(airfoil_params, i)
 	toReturn = open("results/drag_ligt.m", 'r').read()
