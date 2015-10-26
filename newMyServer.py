@@ -18,11 +18,20 @@ app = Flask(__name__)
 
 def distribute_work(n):
 	global n_workers
-	if(n_workers == 0):
-		max_angles = 5
-		n_workers = init((n/max_angles)+1)
+	if n_workers == 0:
+		max_angles = 6
+		if ((n/max_angles)+1) >= 8:
+			n_workers = init(n_workers, 8)
+		else:
+			n_workers = init(n_workers, (n/max_angles)+1)
+	elif n_workers > ((n/max_angles)+1):
+		n_workers = kill((n/max_angles)+1, n_workers)
 	else:
-		n_workers = kill(n_workers)
+		if ((n/max_angles)+1) >= 8:
+			n_workers = init(n_workers, 8)
+		else:
+			n_workers = init(n_workers, (n/max_angles)+1)
+
 
 def num(s):
     try:
@@ -189,11 +198,11 @@ def emails():
 				
 				db.dump()
 				#LD = "Best L/D ratio: %f"  %(np.max(c))
-				r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/", 
-					files={pic_name: open(pic_path, 'rb')})
+				#r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/", 
+				#	files={pic_name: open(pic_path, 'rb')})
 
-				r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/",
-					files={'plots.db': open('plots.db', 'rb')})
+				#r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/",
+				#	files={'plots.db': open('plots.db', 'rb')})
 
 				results = "Click on the buttons to change pictures"
 			

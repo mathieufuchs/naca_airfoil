@@ -33,7 +33,7 @@ def init_n(worker_number, nc):
      key_name = keypair.name, userdata = ud)
     time.sleep(5)
 
-def init(number_of_workers):
+def init(w_left, number_of_workers):
     config = {'username':os.environ['OS_USERNAME'],
         'api_key':os.environ['OS_PASSWORD'],
         'project_id':os.environ['OS_TENANT_NAME'],
@@ -43,7 +43,7 @@ def init(number_of_workers):
 
     BROKER_IP = subprocess.check_output("wget -qO- http://ipecho.net/plain ; echo", shell=True).rstrip()
     substitute_line('    - export BROKER_IP="' + BROKER_IP +'"', 'export BROKER_IP=', 'userdata2.yml')
-    for i in range(0,number_of_workers):
+    for i in range(w_left,number_of_workers):
         init_n(i, nc)
 
     return number_of_workers
@@ -54,16 +54,22 @@ def kill_n(i, nc):
     serverToTerminate.delete()
     print("killed instance: %s" %(toTerminate))
 
-def kill(number_of_workers):
+def kill(w_left, number_of_workers):
     config = {'username':os.environ['OS_USERNAME'], 
           'api_key':os.environ['OS_PASSWORD'],
           'project_id':os.environ['OS_TENANT_NAME'],
           'auth_url':os.environ['OS_AUTH_URL'],
           }
     nc = Client('2',**config)
-    for i in range(0,number_of_workers):
+    subprocess.check_call("sudo rabbitmqctl stop_app", shell=True)
+    subprocess.check_call("sudo rabbitmqctl force_reset", shell=True)
+    for i in range(w_left,number_of_workers):
         kill_n(i, nc)
     
-    return 0
+    subprocess.check_call("sudo rabbitmqctl start_app", shell=True)
+    subprocess.check_call("sudo rabbitmqctl add_user ma fu", shell=True)
+    subprocess.check_call("sudo rabbitmqctl add_vhost mafu", shell=True)
+    subprocess.check_call('sudo rabbitmqctl set_permissions -p mafu ma ".*" ".*" ".*"', shell=True)
+    return w_left
 
 # Terminate all your running instances
