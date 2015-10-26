@@ -32,7 +32,7 @@ def distributeJob(start, stop, n):
         angle.append(start + diff*i)
     return angle
 
-def plot(image, x, y, z, c, i):
+def plot(image, x, y, z, c):
 	a = pyplot.figure()
 	a.suptitle("Lift and Drag forces over time", fontsize=16)
 	ax1 = a.add_subplot(211)
@@ -165,23 +165,19 @@ def emails():
 				l1 = tmp[::3]
 				l2=tmp[1::3]
 				l3=tmp[2::3]
-				print l1.pop(0) #+ str(l1.pop(0))
-				print l2.pop(0) #+ str(l2.pop(0))
-				print l3.pop(0) #+ str(l3.pop(0))
+				l1.pop(0) #+ str(l1.pop(0))
+				l2.pop(0) #+ str(l2.pop(0))
+				l3.pop(0) #+ str(l3.pop(0))
 				a=np.array(l2, dtype=np.float)
 				b=np.array(l3, dtype=np.float)
-				c = a/b
 				d= np.array(l1, dtype = np.float)
-				e = np.max(c)
-				Nindex = nonzero(t == e)[0][0]
-				
 				
 				pic_name = "air"+task_name + ".png"
 				pic_path = "static/" + pic_name
 				db.set(pic_name, pic_path)
 				
 				image = open(pic_path,'w')
-				plot(image, d, a, b, 'b', Nindex)
+				plot(image, d, a, b, 'b')
 				image.close
 				
 				db.dump()

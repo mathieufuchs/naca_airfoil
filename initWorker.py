@@ -15,7 +15,7 @@ def substitute_line(new, old, file):
     f.close()
 
 # Create instance
-def init_n(worker_number):
+def init_n(worker_number, nc):
     worker_name = "mat_test_%i" %(worker_number)
     import time 
     #image = nc.images.find(name="Ubuntu Server 14.04 LTS (Trusty Tahr)")
@@ -44,4 +44,4 @@ def init(number_of_workers):
     BROKER_IP = subprocess.check_output("wget -qO- http://ipecho.net/plain ; echo", shell=True).rstrip()
     substitute_line('    - export BROKER_IP="' + BROKER_IP +'"', 'export BROKER_IP=', 'userdata2.yml')
     for i in range(0,number_of_workers):
-        init_n(i)
+        init_n(i, nc)
