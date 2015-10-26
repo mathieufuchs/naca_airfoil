@@ -18,8 +18,8 @@ app = Flask(__name__)
 
 def distribute_work(n):
 	global n_workers
+	max_angles = 6
 	if n_workers == 0:
-		max_angles = 6
 		if ((n/max_angles)+1) >= 8:
 			n_workers = init(n_workers, 8)
 		else:
