@@ -8,6 +8,10 @@ import subprocess
 from dolfin_convert import gmsh2xml 
 app = Celery('tasks', backend='amqp', broker='amqp://ma:fu@'+os.environ["BROKER_IP"]+':5672/mafu')
 
+app.conf.update(CELERY_ACKS_LATE = True,
+	CELERYD_PREFETCH_MULTIPLIER = 1)
+
+
 def convertToXML(i):
 	meshes = glob.glob("msh/r*a" + str(i) + "n*.msh")
 	for fn in meshes:

@@ -4,6 +4,7 @@ from tasks import computeResults
 from initWorker import init, kill
 from celery import Celery, group
 import os
+import requests
 import subprocess
 import matplotlib 
 matplotlib.use('Agg')
@@ -188,7 +189,12 @@ def emails():
 				
 				db.dump()
 				#LD = "Best L/D ratio: %f"  %(np.max(c))
-		
+				r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/", 
+					files={pic_name: open(pic_path, 'rb')})
+
+				r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/",
+					files={'plots.db': open('plots.db', 'rb')})
+
 				results = "Click on the buttons to change pictures"
 			
 				show = 1
