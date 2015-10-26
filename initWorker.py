@@ -45,3 +45,25 @@ def init(number_of_workers):
     substitute_line('    - export BROKER_IP="' + BROKER_IP +'"', 'export BROKER_IP=', 'userdata2.yml')
     for i in range(0,number_of_workers):
         init_n(i, nc)
+
+    return number_of_workers
+
+def kill_n(i):
+    toTerminate = "mat_test_%i" %(i)
+    serverToTerminate = nc.servers.find(name=toTerminate)
+    serverToTerminate.delete()
+    print("killed instance: %s" %(toTerminate))
+
+def kill(number_of_workers, nc):
+    config = {'username':os.environ['OS_USERNAME'], 
+          'api_key':os.environ['OS_PASSWORD'],
+          'project_id':os.environ['OS_TENANT_NAME'],
+          'auth_url':os.environ['OS_AUTH_URL'],
+          }
+    nc = Client('2',**config)
+    for i in range(0,number_of_workers):
+        kill(i, nc)
+    
+    return 0
+
+# Terminate all your running instances

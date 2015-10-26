@@ -1,7 +1,7 @@
 from flask import Flask, render_template, send_file
 from flask import request, redirect
 from tasks import computeResults
-from initWorker import init
+from initWorker import init, kill
 from celery import Celery, group
 import os
 import subprocess
@@ -15,9 +15,12 @@ import pickledb
 
 app = Flask(__name__)
 
-def distribute_work(num_of_angles):
-	max_angles = 5
-	init((n/max_angles)+1)
+def distribute_work(n):
+	if(n_workers == 0):
+		max_angles = 5
+		n_workers = init((n/max_angles)+1)
+	else:
+		n_workers = kill(n_workers)
 
 def num(s):
     try:
@@ -54,6 +57,8 @@ results="Not ready yet... Reload the page!"
 show = 0
 
 db = pickledb.load('plots.db', False)
+
+n_workers = 0
 
 @app.route('/')
 def index():
