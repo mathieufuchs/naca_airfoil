@@ -48,13 +48,13 @@ def init(number_of_workers):
 
     return number_of_workers
 
-def kill_n(i):
+def kill_n(i, nc):
     toTerminate = "mat_test_%i" %(i)
     serverToTerminate = nc.servers.find(name=toTerminate)
     serverToTerminate.delete()
     print("killed instance: %s" %(toTerminate))
 
-def kill(number_of_workers, nc):
+def kill(number_of_workers):
     config = {'username':os.environ['OS_USERNAME'], 
           'api_key':os.environ['OS_PASSWORD'],
           'project_id':os.environ['OS_TENANT_NAME'],
@@ -62,7 +62,7 @@ def kill(number_of_workers, nc):
           }
     nc = Client('2',**config)
     for i in range(0,number_of_workers):
-        kill(i, nc)
+        kill_n(i, nc)
     
     return 0
 
