@@ -16,6 +16,7 @@ import pickledb
 app = Flask(__name__)
 
 def distribute_work(n):
+	global n_workers
 	if(n_workers == 0):
 		max_angles = 5
 		n_workers = init((n/max_angles)+1)
