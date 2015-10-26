@@ -1,6 +1,7 @@
 from flask import Flask, render_template, send_file
 from flask import request, redirect
 from tasks import computeResults
+from initWorker import init
 from celery import Celery, group
 import os
 import subprocess
@@ -13,6 +14,10 @@ from cStringIO import StringIO
 import pickledb
 
 app = Flask(__name__)
+
+def distribute_work(num_of_angles):
+	max_angles = 5
+	init((n/max_angles)+1)
 
 def num(s):
     try:
@@ -28,9 +33,6 @@ def distributeJob(start, stop, n):
     return angle
 
 def plot(image, x, y, z, c, i):
-	xVal = x[Nindex]
-	yVal = b[Nindex]
-	zVal = 
 	a = pyplot.figure()
 	a.suptitle("Lift and Drag forces over time", fontsize=16)
 	ax1 = a.add_subplot(211)
@@ -88,6 +90,9 @@ def run():
 	if (num(params['angle_stop']) - num(params['angle_start']) >= num(params['n_angles']) ):
 		params['n_angles'] = str((num(params['angle_stop']) - num(params['angle_start']))/2)
 	
+	#start new workers
+	distribute_work(num(params['n_angles']))
+
 	db.load('plots.db',False)
 	angList = distributeJob(num(params['angle_start']), num(params['angle_stop']), num(params['n_angles']))
 	names = db.getall()

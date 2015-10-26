@@ -1,0 +1,18 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+packages:
+    - git
+    - python-pip
+
+runcmd:
+    - git clone https://github.com/mathieufuchs/naca_airfoil.git
+    - mv naca_airfoil home/ubuntu/naca_airfoil
+    - chown -R ubuntu home/ubuntu/naca_airfoil
+    - pip install celery
+    - cd /home/ubuntu/naca_airfoil
+    - export BROKER_IP=
+    - export C_FORCE_ROOT="true"
+    - celery worker -l info -A tasks --concurrency=1

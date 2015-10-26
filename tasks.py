@@ -6,8 +6,7 @@ import time
 import urllib2
 import subprocess
 from dolfin_convert import gmsh2xml 
-app = Celery('tasks', backend='amqp', broker='amqp://ma:fu@130.238.29.150:5672/mafu')
-
+app = Celery('tasks', backend='amqp', broker='amqp://ma:fu@'+os.environ["BROKER_IP"]+':5672/mafu')
 
 def convertToXML(i):
 	meshes = glob.glob("msh/r*a" + str(i) + "n*.msh")
