@@ -23,4 +23,4 @@ def get_file(file_name, file_path):
 
     obj = conn.get_object('matstorage', file_name)
     with open(file_path, 'w') as f:
-        f.write(obj)
+        f.write(obj[1])
