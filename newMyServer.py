@@ -73,7 +73,7 @@ get_file('plots.db','plots.db')
 db = pickledb.load('plots.db', False)
 
 for i in db.getall():
-	get_file(i, '/static/'+i)
+	get_file(i, 'static/'+i)
 
 n_workers = 0
 

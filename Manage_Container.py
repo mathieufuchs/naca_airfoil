@@ -22,5 +22,6 @@ def get_file(file_name, file_path):
     conn = swiftclient.client.Connection(auth_version=2, **config)
 
     obj = conn.get_object('matstorage', file_name)
-    with open(file_path, 'w') as f:
-        f.write(obj[1])
+    f = open(file_path, 'w')
+    f.write(obj[1])
+    f.close()
