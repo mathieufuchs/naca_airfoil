@@ -116,20 +116,16 @@ def run():
 	angList = distributeJob(num(params['angle_start']), num(params['angle_stop']), num(params['n_angles']))
 	names = db.getall()
 	#names = os.listdir(os.path.join(app.static_folder))
-	for i in angList:
-		nameInputed = "_a"+str(i) +"_n"+str(params['n_nodes'])
-		nameToCheck = "air"+ nameInputed + ".png"
-		for j in names:
-			if j == nameToCheck:
-				angList.remove(i)
+	angList = [a for a in angList if "air_a"+str(a)+"_n"+str(10)+".png" not in names]
 				
 	if(len(angList) == 0):		
 		return render_template('params.html', params=params, airfoil_params=airfoil_params,
 	status="This simulation has already been done", results="Click on the wanted plot to display it", images = names)
 	 
 	#start new workers
-	distribute_work(num(params['n_angles']))
-	
+	#distribute_work(num(params['n_angles']))
+	distribute_work(len(angList))
+
 	job = group(computeResults.s(params, airfoil_params, i) for i in angList)
 	print job
 	global task 
