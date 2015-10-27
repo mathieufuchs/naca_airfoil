@@ -68,7 +68,12 @@ results="Not ready yet... Reload the page!"
 
 show = 0
 
+get_file('plots.db','plots.db')
+
 db = pickledb.load('plots.db', False)
+
+for i in db.getall():
+	get_file(i, '/static/'+i)
 
 n_workers = 0
 
@@ -106,9 +111,6 @@ def run():
 	
 	if (num(params['angle_stop']) - num(params['angle_start']) >= num(params['n_angles']) ):
 		params['n_angles'] = str((num(params['angle_stop']) - num(params['angle_start']))/2)
-	
-	#start new workers
-	distribute_work(num(params['n_angles']))
 
 	db.load('plots.db',False)
 	angList = distributeJob(num(params['angle_start']), num(params['angle_stop']), num(params['n_angles']))
@@ -125,7 +127,9 @@ def run():
 		return render_template('params.html', params=params, airfoil_params=airfoil_params,
 	status="This simulation has already been done", results="Click on the wanted plot to display it", images = names)
 	 
-
+	#start new workers
+	distribute_work(num(params['n_angles']))
+	
 	job = group(computeResults.s(params, airfoil_params, i) for i in angList)
 	print job
 	global task 
