@@ -31,7 +31,6 @@ def init_n(worker_number, nc):
     #f.close()
     server = nc.servers.create(name = worker_name ,image = image.id,flavor = flavor.id,network = network.id,
      key_name = keypair.name, userdata = ud)
-    time.sleep(5)
 
 def init(w_left, number_of_workers):
     config = {'username':os.environ['OS_USERNAME'],
