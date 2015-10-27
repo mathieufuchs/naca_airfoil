@@ -2,6 +2,7 @@ from flask import Flask, render_template, send_file
 from flask import request, redirect
 from tasks import computeResults
 from initWorker import init, kill
+from Manage_Container import put_file, get_file
 from celery import Celery, group
 import os
 import requests
@@ -197,6 +198,9 @@ def emails():
 				image.close
 				
 				db.dump()
+
+				put_file('plots.db', 'plots.db')
+				put_file(pic_name, pic_path)
 				#LD = "Best L/D ratio: %f"  %(np.max(c))
 				#r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/", 
 				#	files={pic_name: open(pic_path, 'rb')})
