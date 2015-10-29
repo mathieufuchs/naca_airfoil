@@ -119,7 +119,7 @@ def run():
 	angList = distributeJob(num(params['angle_start']), num(params['angle_stop']), num(params['n_angles']))
 	names = db.getall()
 	#names = os.listdir(os.path.join(app.static_folder))
-	angList = [a for a in angList if "air_a"+str(a)+"_n"+str(10)+".png" not in names]
+	angList = [a for a in angList if "air_a"+str(a)+"_n"+str(params['n_nodes'])+".png" not in names]
 				
 	if(len(angList) == 0):		
 		return render_template('params.html', params=params, airfoil_params=airfoil_params,
@@ -196,9 +196,8 @@ def show_results():
 				pic_path = "static/" + pic_name
 				db.set(pic_name, pic_path)
 				
-				image = open(pic_path,'w')
-				plot(image, d, a, b, 'b')
-				image.close
+				with open(pic_path,'w') as image:
+					plot(image, d, a, b, 'b')
 				
 				db.dump()
 

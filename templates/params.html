@@ -48,7 +48,7 @@ function display(t) {
     <p>{{results}}</p>
     
     <p>
-    {% for i in images %}   
+    {% for i in images|sort %}   
     <button onclick="display('{{i}}');" > {{i}}</button>
 {% endfor %}
 </p>
