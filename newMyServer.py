@@ -112,8 +112,8 @@ def run():
 	if not(1<= num(params['n_nodes']) <=200):
 		params['n_nodes']= "10"
 	
-	if (num(params['angle_stop']) - num(params['angle_start']) >= num(params['n_angles']) ):
-		params['n_angles'] = str((num(params['angle_stop']) - num(params['angle_start']))/2)
+	#if (num(params['angle_stop']) - num(params['angle_start']) >= num(params['n_angles']) ):
+	#	params['n_angles'] = str((num(params['angle_stop']) - num(params['angle_start']))/2)
 
 	db.load('plots.db',False)
 	angList = distributeJob(num(params['angle_start']), num(params['angle_stop']), num(params['n_angles']))
