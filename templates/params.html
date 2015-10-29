@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Results</title>
+    <title>Results of the simulations</title>
     <style>
 #container {
 position:relative
@@ -12,20 +12,21 @@ position:relative
 width: 40%;
 }
 #div2 {
+clear: bottom;
 position: absolute;
         top: 0px;
         right: 0px;
-        bottom: 0px;
         width: 60%;
 }
 </style>
 <script>
+ImageList = {{ images|safe }};
 function display(t) {
     document.getElementById("disp").src = '/static/' +t 
 }
 </script>
   </head>
-  <body>
+  <body onload = display(ImageList[0])>
   <div id="container">
 <div id="div1">
   <a href=/ >Return to Index</a>
@@ -48,13 +49,13 @@ function display(t) {
     <p>{{results}}</p>
     
     <p>
-    {% for i in images|sort %}   
-    <button onclick="display('{{i}}');" > {{i}}</button>
+     {% for i in images|sort %}
+    <button onmouseover="display('{{i}}');" > {{i|replace(".png", "")|replace("air_", "")|upper()}}</button>
 {% endfor %}
 </p>
 </div>
     <div id="div2">
-    <p> <img id = "disp" src ={{ url_for('static', filename = 'tmp.png') }} style="width: 100%; height: 100%; float: left; " alt="results" title="Results" border="0">
+    <p> <img id = "disp" src ={{ url_for('static', filename = 'tmp.png') }} style="width: 80%; height: 80%; float: left; " alt="results" title="Results" border="0">
 </p>
   </div>
     </div>

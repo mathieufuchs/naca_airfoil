@@ -13,6 +13,7 @@ from matplotlib import pyplot
 import numpy as np
 from cStringIO import StringIO
 import pickledb
+import threading
 
 app = Flask(__name__)
 
@@ -202,7 +203,10 @@ def show_results():
 				db.dump()
 
 				put_file('plots.db', 'plots.db')
-				put_file(pic_name, pic_path)
+				
+				upload_thread = threading.Thread(target=put_file, args=(pic_name, pic_path, ))
+				thread.start_new_thread( put_file, (pic_name, pic_path, ) )
+				#put_file(pic_name, pic_path)
 				#LD = "Best L/D ratio: %f"  %(np.max(c))
 				#r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/", 
 				#	files={pic_name: open(pic_path, 'rb')})
