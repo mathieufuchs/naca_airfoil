@@ -9,7 +9,6 @@ import requests
 import subprocess
 import matplotlib 
 matplotlib.use('Agg')
-
 from matplotlib import pyplot
 import numpy as np
 from cStringIO import StringIO
@@ -17,6 +16,8 @@ import pickledb
 
 app = Flask(__name__)
 
+# this function handles the creation and delition of workers. 
+# It optimizes the need for workers depending on how much angles the user is demanding to do the simulations on.  
 def distribute_work(n):
 	global n_workers
 	max_angles = 6
@@ -40,6 +41,8 @@ def num(s):
     except ValueError:
         return float(s)
 
+# translation of the first loop of run.sh which creates a list of angles to create the meshes with
+# returns the list of angles
 def distributeJob(start, stop, n):
     angle = []
     diff=((stop-start)/n)
@@ -47,6 +50,7 @@ def distributeJob(start, stop, n):
         angle.append(start + diff*i)
     return angle
 
+# saves the plots to a .png
 def plot(image, x, y, z, c):
 	a = pyplot.figure()
 	a.suptitle("Lift and Drag forces over time", fontsize=16)
@@ -58,10 +62,9 @@ def plot(image, x, y, z, c):
 	ax2.plot(x, z, c)
 	a.savefig(image, format='png')
 
-params = {'angle_start':2, 'angle_stop':4, 
-'n_angles':1, 'n_nodes':10, 'n_levels':1}
+params = {'angle_start':2, 'angle_stop':4, 'n_angles':1, 'n_nodes':10, 'n_levels':1} #dictionnary of the gmsh params
 
-airfoil_params = {'num_samples':10, 'visc':0.001, 'speed':10, 'T':0.1}
+airfoil_params = {'num_samples':10, 'visc':0.001, 'speed':10, 'T':0.1} #dictionnary of the airfoil params 
 
 status="PENDING"
 results="Not ready yet... Reload the page!"
@@ -136,11 +139,11 @@ def run():
 	return redirect('/params')
 
 @app.route('/showParams', methods = ['POST'])
-def showParams():		
+def show_params():		
 	return redirect('/params')
 	
 @app.route('/params')
-def emails():
+def show_results():
 	try:
 		task.ready()
 	except:
@@ -168,23 +171,23 @@ def emails():
 				objects = task.get()
 			except:
 				names = db.getall()
-				#names = os.listdir(os.path.join(app.static_folder))
 				return render_template('params.html', params=params, airfoil_params=airfoil_params,
                 status="FAILED", results="Something went wrong, return to index and try again...", images=names)
+
 			for o in objects:
 				print o
 				obj = o[0]
 				task_name=o[1]
 				print task_name
 				tmp = obj.split()
-				tmp.pop(0)
+				tmp.pop(0) #remove %
 				print "...1"
 				l1 = tmp[::3]
 				l2=tmp[1::3]
 				l3=tmp[2::3]
-				l1.pop(0) #+ str(l1.pop(0))
-				l2.pop(0) #+ str(l2.pop(0))
-				l3.pop(0) #+ str(l3.pop(0))
+				l1.pop(0) #remove time
+				l2.pop(0) #remove lift
+				l3.pop(0) #remove drag
 				a=np.array(l2, dtype=np.float)
 				b=np.array(l3, dtype=np.float)
 				d= np.array(l1, dtype = np.float)

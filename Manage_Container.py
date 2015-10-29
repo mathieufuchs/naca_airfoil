@@ -9,7 +9,7 @@ def put_file(file_name, file_path):
 
     conn = swiftclient.client.Connection(auth_version=2, **config)
 
-    with open(file_path, 'rb') as f:
+    with open(file_path, 'r') as f:
         file_data = f.read()
     conn.put_object('matstorage', file_name, file_data)
 
