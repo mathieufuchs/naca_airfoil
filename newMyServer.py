@@ -13,7 +13,7 @@ from matplotlib import pyplot
 import numpy as np
 from cStringIO import StringIO
 import pickledb
-import threading
+import thread
 
 app = Flask(__name__)
 
@@ -76,8 +76,8 @@ get_file('plots.db','plots.db')
 
 db = pickledb.load('plots.db', False)
 
-for i in db.getall():
-	get_file(i, 'static/'+i)
+#for i in db.getall():
+#	get_file(i, 'static/'+i)
 
 n_workers = 0
 
@@ -204,7 +204,7 @@ def show_results():
 
 				put_file('plots.db', 'plots.db')
 				
-				upload_thread = threading.Thread(target=put_file, args=(pic_name, pic_path, ))
+				#upload_thread = threading.Thread(target=put_file, args=(pic_name, pic_path, ))
 				thread.start_new_thread( put_file, (pic_name, pic_path, ) )
 				#put_file(pic_name, pic_path)
 				#LD = "Best L/D ratio: %f"  %(np.max(c))
