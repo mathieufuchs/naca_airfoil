@@ -35,8 +35,10 @@ def distribute_work(n):
 			n_workers = init(n_workers, 8)
 		else:
 			n_workers = init(n_workers, (n/max_angles)+1)'''
-	init(0, 1)
-
+	if n_workers == 0:
+		init(0, 1)
+		global n_workers
+		n_workers=1
 
 def num(s):
     try:
