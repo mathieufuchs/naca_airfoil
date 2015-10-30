@@ -121,7 +121,7 @@ def run():
 	angList = distributeJob(num(params['angle_start']), num(params['angle_stop']), num(params['n_angles']))
 	names = db.getall()
 	startT = time.time()
-	db.set("time"=startT)
+	db.set("time",startT)
 	db.dump()
 	#names = os.listdir(os.path.join(app.static_folder))
 	angList = [a for a in angList if "air_a"+str(a)+"_n"+str(params['n_nodes'])+".png" not in names]
