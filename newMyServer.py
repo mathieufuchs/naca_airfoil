@@ -5,6 +5,7 @@ from initWorker import init, kill
 from Manage_Container import put_file, get_file
 from celery import Celery, group
 import os
+import time
 import requests
 import subprocess
 import matplotlib 
@@ -145,25 +146,30 @@ def show_params():
 	
 @app.route('/params')
 def show_results():
-	try:
-		task.ready()
-	except:
-		db.load('plots.db',False)
-		names = db.getall()
-		#names = os.listdir(os.path.join(app.static_folder))
-		return render_template('params.html', params=params, airfoil_params=airfoil_params,
-		status="Click RUN", results="", images = names)
+	startT = time.time()
+#	try:
+#		task.ready()
+#	except:
+#		db.load('plots.db',False)
+#		names = db.getall()
+#		#names = os.listdir(os.path.join(app.static_folder))
+#		return render_template('params.html', params=params, airfoil_params=airfoil_params,
+#		status="Click RUN", results="", images = names)
 	
-	if task.ready() == False:
-		global show 
-		show = 0
-		print "not ready"
-		db.load('plots.db',False)
-		names = db.getall()
-		#names = os.listdir(os.path.join(app.static_folder))
-		return render_template('params.html', params=params, airfoil_params=airfoil_params,
-		status="PENDING", results="...computing...", images=names)
-	else:
+#	if task.ready() == False:
+#		global show 
+#		show = 0
+#		print "not ready"
+#		db.load('plots.db',False)
+#		names = db.getall()
+#		#names = os.listdir(os.path.join(app.static_folder))
+#		return render_template('params.html', params=params, airfoil_params=airfoil_params,
+#		status="PENDING", results="...computing...", images=names)
+#	else:
+	while task.ready() ==False:
+		pass
+
+	if (task.ready == True):
 		global show
 		print "Task Done"
 		status = "DONE"
@@ -175,6 +181,7 @@ def show_results():
 				return render_template('params.html', params=params, airfoil_params=airfoil_params,
                 status="FAILED", results="Something went wrong, return to index and try again...", images=names)
 
+			elapsedT = time.time() - startT	
 			for o in objects:
 				print o
 				obj = o[0]
@@ -224,7 +231,7 @@ def show_results():
 		global results
 		global status
 		return render_template('params.html', params=params, airfoil_params=airfoil_params,
-		status=status, results=results, images=names)
+		status=status, results=elapsedT, images=names)
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True)

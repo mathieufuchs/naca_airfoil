@@ -47,13 +47,13 @@ function display(t) {
     <p>{{status}}</p>
     <h2>RESULTS</h2>
     <p>{{results}}</p>
-    
+   </div> 
     <p>
      {% for i in images|sort %}
     <button onmouseover="display('{{i}}');" > {{i|replace(".png", "")|replace("air_", "")|upper()}}</button>
 {% endfor %}
 </p>
-</div>
+
     <div id="div2">
     <p> <img id = "disp" src ={{ url_for('static', filename = 'tmp.png') }} style="width: 80%; height: 80%; float: left; " alt="results" title="Results" border="0">
 </p>
