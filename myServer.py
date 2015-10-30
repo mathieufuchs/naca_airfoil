@@ -1,17 +1,40 @@
 from flask import Flask, render_template, send_file
 from flask import request, redirect
 from tasks import computeResults
+from initWorker import init, kill
+from Manage_Container import put_file, get_file
 from celery import Celery, group
 import os
+import requests
 import subprocess
-import matplotlib
+import matplotlib 
 matplotlib.use('Agg')
-
 from matplotlib import pyplot
 import numpy as np
 from cStringIO import StringIO
+import pickledb
+import thread
 
 app = Flask(__name__)
+
+# this function handles the creation and delition of workers. 
+# It optimizes the need for workers depending on how much angles the user is demanding to do the simulations on.  
+def distribute_work(n):
+	global n_workers
+	max_angles = 6
+	if n_workers == 0:
+		if ((n/max_angles)+1) >= 8:
+			n_workers = init(n_workers, 8)
+		else:
+			n_workers = init(n_workers, (n/max_angles)+1)
+	elif n_workers > ((n/max_angles)+1):
+		n_workers = kill((n/max_angles)+1, n_workers)
+	else:
+		if ((n/max_angles)+1) >= 8:
+			n_workers = init(n_workers, 8)
+		else:
+			n_workers = init(n_workers, (n/max_angles)+1)
+
 
 def num(s):
     try:
@@ -19,6 +42,8 @@ def num(s):
     except ValueError:
         return float(s)
 
+# translation of the first loop of run.sh which creates a list of angles to create the meshes with
+# returns the list of angles
 def distributeJob(start, stop, n):
     angle = []
     diff=((stop-start)/n)
@@ -26,6 +51,7 @@ def distributeJob(start, stop, n):
         angle.append(start + diff*i)
     return angle
 
+# saves the plots to a .png
 def plot(image, x, y, z, c):
 	a = pyplot.figure()
 	a.suptitle("Lift and Drag forces over time", fontsize=16)
@@ -37,15 +63,23 @@ def plot(image, x, y, z, c):
 	ax2.plot(x, z, c)
 	a.savefig(image, format='png')
 
-params = {'angle_start':2, 'angle_stop':4, 
-'n_angles':1, 'n_nodes':10, 'n_levels':1}
+params = {'angle_start':2, 'angle_stop':4, 'n_angles':1, 'n_nodes':10, 'n_levels':1} #dictionnary of the gmsh params
 
-airfoil_params = {'num_samples':10, 'visc':0.001, 'speed':10, 'T':0.1}
+airfoil_params = {'num_samples':10, 'visc':0.001, 'speed':10, 'T':0.1} #dictionnary of the airfoil params 
 
 status="PENDING"
 results="Not ready yet... Reload the page!"
 
 show = 0
+
+get_file('plots.db','plots.db')
+
+db = pickledb.load('plots.db', False)
+
+#for i in db.getall():
+#	get_file(i, 'static/'+i)
+
+n_workers = 0
 
 @app.route('/')
 def index():
@@ -72,26 +106,29 @@ def signup2():
 @app.route('/run', methods = ['POST'])
 def run():		
 	print "first"
-	if not (1<= num(params["n_levels"]) <= 3) :
+	if not (0<= num(params["n_levels"]) <= 3) :
 		params["n_levels"] = "1"
 	
 	params["n_levels"] = "0"
 	if not(1<= num(params['n_nodes']) <=200):
 		params['n_nodes']= "10"
 	
-	if (num(params['angle_stop']) - num(params['angle_start']) >= num(params['n_angles']) ):
-		params['n_angles'] = str((num(params['angle_stop']) - num(params['angle_start']))/2)
-		
+	#if (num(params['angle_stop']) - num(params['angle_start']) >= num(params['n_angles']) ):
+	#	params['n_angles'] = str((num(params['angle_stop']) - num(params['angle_start']))/2)
+
+	db.load('plots.db',False)
 	angList = distributeJob(num(params['angle_start']), num(params['angle_stop']), num(params['n_angles']))
-	names = os.listdir(os.path.join(app.static_folder))
-	for i in angList:
-		nameInputed = "_a"+str(i) +"_n"+str(params['n_nodes'])
-		nameToCheck = "air"+ nameInputed + ".png"
-		for j in names:
-			if j == nameToCheck:
-				return render_template('params.html', params=params, airfoil_params=airfoil_params,
-                status="This simulation has already been done", results="Click on the wanted plot to display it", images = names)
+	names = db.getall()
+	#names = os.listdir(os.path.join(app.static_folder))
+	angList = [a for a in angList if "air_a"+str(a)+"_n"+str(params['n_nodes'])+".png" not in names]
+				
+	if(len(angList) == 0):		
+		return render_template('params.html', params=params, airfoil_params=airfoil_params,
+	status="This simulation has already been done", results="Click on the wanted plot to display it", images = names)
 	 
+	#start new workers
+	#distribute_work(num(params['n_angles']))
+	distribute_work(len(angList))
 
 	job = group(computeResults.s(params, airfoil_params, i) for i in angList)
 	print job
@@ -103,15 +140,17 @@ def run():
 	return redirect('/params')
 
 @app.route('/showParams', methods = ['POST'])
-def showParams():		
+def show_params():		
 	return redirect('/params')
 	
 @app.route('/params')
-def emails():
+def show_results():
 	try:
 		task.ready()
 	except:
-		names = os.listdir(os.path.join(app.static_folder))
+		db.load('plots.db',False)
+		names = db.getall()
+		#names = os.listdir(os.path.join(app.static_folder))
 		return render_template('params.html', params=params, airfoil_params=airfoil_params,
 		status="Click RUN", results="", images = names)
 	
@@ -119,7 +158,9 @@ def emails():
 		global show 
 		show = 0
 		print "not ready"
-		names = os.listdir(os.path.join(app.static_folder))
+		db.load('plots.db',False)
+		names = db.getall()
+		#names = os.listdir(os.path.join(app.static_folder))
 		return render_template('params.html', params=params, airfoil_params=airfoil_params,
 		status="PENDING", results="...computing...", images=names)
 	else:
@@ -130,41 +171,56 @@ def emails():
 			try:
 				objects = task.get()
 			except:
-				names = os.listdir(os.path.join(app.static_folder))
+				names = db.getall()
 				return render_template('params.html', params=params, airfoil_params=airfoil_params,
                 status="FAILED", results="Something went wrong, return to index and try again...", images=names)
+
 			for o in objects:
 				print o
 				obj = o[0]
 				task_name=o[1]
 				print task_name
 				tmp = obj.split()
-				tmp.pop(0)
+				tmp.pop(0) #remove %
 				print "...1"
 				l1 = tmp[::3]
 				l2=tmp[1::3]
 				l3=tmp[2::3]
-				print l1.pop(0) #+ str(l1.pop(0))
-				print l2.pop(0) #+ str(l2.pop(0))
-				print l3.pop(0) #+ str(l3.pop(0))
+				l1.pop(0) #remove time
+				l2.pop(0) #remove lift
+				l3.pop(0) #remove drag
 				a=np.array(l2, dtype=np.float)
 				b=np.array(l3, dtype=np.float)
-				c = a/b
 				d= np.array(l1, dtype = np.float)
 				
 				pic_name = "air"+task_name + ".png"
-				image = open("static/"+pic_name,'w')
-				plot(image, d, a, b, 'r--')
-				image.close
-			
+				pic_path = "static/" + pic_name
+				db.set(pic_name, pic_path)
+				
+				with open(pic_path,'w') as image:
+					plot(image, d, a, b, 'b')
+				
+				db.dump()
+
+				put_file('plots.db', 'plots.db')
+				
+				#upload_thread = threading.Thread(target=put_file, args=(pic_name, pic_path, ))
+				thread.start_new_thread( put_file, (pic_name, pic_path, ) )
+				#put_file(pic_name, pic_path)
 				#LD = "Best L/D ratio: %f"  %(np.max(c))
-		
+				#r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/", 
+				#	files={pic_name: open(pic_path, 'rb')})
+
+				#r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/",
+				#	files={'plots.db': open('plots.db', 'rb')})
+
 				results = "Click on the buttons to change pictures"
 			
 				show = 1
 				print "got results"
 		
-		names = os.listdir(os.path.join(app.static_folder))
+		#names = os.listdir(os.path.join(app.static_folder))
+		names = db.getall()
 		global results
 		global status
 		return render_template('params.html', params=params, airfoil_params=airfoil_params,

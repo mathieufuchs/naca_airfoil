@@ -21,7 +21,7 @@ app = Flask(__name__)
 # this function handles the creation and delition of workers. 
 # It optimizes the need for workers depending on how much angles the user is demanding to do the simulations on.  
 def distribute_work(n):
-	global n_workers
+	'''global n_workers
 	max_angles = 6
 	if n_workers == 0:
 		if ((n/max_angles)+1) >= 8:
@@ -34,7 +34,8 @@ def distribute_work(n):
 		if ((n/max_angles)+1) >= 8:
 			n_workers = init(n_workers, 8)
 		else:
-			n_workers = init(n_workers, (n/max_angles)+1)
+			n_workers = init(n_workers, (n/max_angles)+1)'''
+	init(0, 1)
 
 
 def num(s):
