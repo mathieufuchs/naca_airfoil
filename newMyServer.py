@@ -5,7 +5,6 @@ from initWorker import init, kill
 from Manage_Container import put_file, get_file
 from celery import Celery, group
 import os
-import time
 import requests
 import subprocess
 import matplotlib 
@@ -21,7 +20,7 @@ app = Flask(__name__)
 # this function handles the creation and delition of workers. 
 # It optimizes the need for workers depending on how much angles the user is demanding to do the simulations on.  
 def distribute_work(n):
-	'''global n_workers
+	global n_workers
 	max_angles = 6
 	if n_workers == 0:
 		if ((n/max_angles)+1) >= 8:
@@ -34,11 +33,8 @@ def distribute_work(n):
 		if ((n/max_angles)+1) >= 8:
 			n_workers = init(n_workers, 8)
 		else:
-			n_workers = init(n_workers, (n/max_angles)+1)'''
-	if n_workers == 0:
-		init(0, 1)
-		global n_workers
-		n_workers=1
+			n_workers = init(n_workers, (n/max_angles)+1)
+
 
 def num(s):
     try:
@@ -149,7 +145,6 @@ def show_params():
 	
 @app.route('/params')
 def show_results():
-	startT = time.time()
 	try:
 		task.ready()
 	except:
@@ -159,20 +154,16 @@ def show_results():
 		return render_template('params.html', params=params, airfoil_params=airfoil_params,
 		status="Click RUN", results="", images = names)
 	
-#	if task.ready() == False:
-#		global show 
-#		show = 0
-#		print "not ready"
-#		db.load('plots.db',False)
-#		names = db.getall()
-#		#names = os.listdir(os.path.join(app.static_folder))
-#		return render_template('params.html', params=params, airfoil_params=airfoil_params,
-#		status="PENDING", results="...computing...", images=names)
-#	else:
-	while task.ready() ==False:
-		pass
-
-	if (task.ready == True):
+	if task.ready() == False:
+		global show 
+		show = 0
+		print "not ready"
+		db.load('plots.db',False)
+		names = db.getall()
+		#names = os.listdir(os.path.join(app.static_folder))
+		return render_template('params.html', params=params, airfoil_params=airfoil_params,
+		status="PENDING", results="...computing...", images=names)
+	else:
 		global show
 		print "Task Done"
 		status = "DONE"
@@ -184,7 +175,6 @@ def show_results():
 				return render_template('params.html', params=params, airfoil_params=airfoil_params,
                 status="FAILED", results="Something went wrong, return to index and try again...", images=names)
 
-			elapsedT = time.time() - startT	
 			for o in objects:
 				print o
 				obj = o[0]
@@ -234,7 +224,7 @@ def show_results():
 		global results
 		global status
 		return render_template('params.html', params=params, airfoil_params=airfoil_params,
-		status=status, results=elapsedT, images=names)
+		status=status, results=results, images=names)
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True)
