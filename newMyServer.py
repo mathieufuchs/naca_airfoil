@@ -150,14 +150,14 @@ def show_params():
 @app.route('/params')
 def show_results():
 	startT = time.time()
-#	try:
-#		task.ready()
-#	except:
-#		db.load('plots.db',False)
-#		names = db.getall()
-#		#names = os.listdir(os.path.join(app.static_folder))
-#		return render_template('params.html', params=params, airfoil_params=airfoil_params,
-#		status="Click RUN", results="", images = names)
+	try:
+		task.ready()
+	except:
+		db.load('plots.db',False)
+		names = db.getall()
+		#names = os.listdir(os.path.join(app.static_folder))
+		return render_template('params.html', params=params, airfoil_params=airfoil_params,
+		status="Click RUN", results="", images = names)
 	
 #	if task.ready() == False:
 #		global show 
