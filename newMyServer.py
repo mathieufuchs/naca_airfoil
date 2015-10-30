@@ -14,6 +14,7 @@ import numpy as np
 from cStringIO import StringIO
 import pickledb
 import thread
+import time
 
 app = Flask(__name__)
 
@@ -119,6 +120,9 @@ def run():
 	db.load('plots.db',False)
 	angList = distributeJob(num(params['angle_start']), num(params['angle_stop']), num(params['n_angles']))
 	names = db.getall()
+	startT = time.time()
+	db.set("time"=startT)
+	db.dump()
 	#names = os.listdir(os.path.join(app.static_folder))
 	angList = [a for a in angList if "air_a"+str(a)+"_n"+str(params['n_nodes'])+".png" not in names]
 				
@@ -175,6 +179,9 @@ def show_results():
 				return render_template('params.html', params=params, airfoil_params=airfoil_params,
                 status="FAILED", results="Something went wrong, return to index and try again...", images=names)
 
+			db.load('plots.db',False)
+			endT = time.time() - db.get("time")
+			print endT
 			for o in objects:
 				print o
 				obj = o[0]
@@ -204,16 +211,8 @@ def show_results():
 
 				put_file('plots.db', 'plots.db')
 				
-				#upload_thread = threading.Thread(target=put_file, args=(pic_name, pic_path, ))
 				thread.start_new_thread( put_file, (pic_name, pic_path, ) )
-				#put_file(pic_name, pic_path)
-				#LD = "Best L/D ratio: %f"  %(np.max(c))
-				#r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/", 
-				#	files={pic_name: open(pic_path, 'rb')})
-
-				#r = requests.post("https://smog.uppmax.uu.se/dashboard/project/containers/matstorage/",
-				#	files={'plots.db': open('plots.db', 'rb')})
-
+				
 				results = "Click on the buttons to change pictures"
 			
 				show = 1
@@ -224,7 +223,7 @@ def show_results():
 		global results
 		global status
 		return render_template('params.html', params=params, airfoil_params=airfoil_params,
-		status=status, results=results, images=names)
+		status=status, results=endT, images=names)
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True)
