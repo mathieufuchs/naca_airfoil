@@ -11,12 +11,13 @@ app = Celery('tasks', backend='amqp', broker='amqp://ma:fu@'+os.environ["BROKER_
 app.conf.update(CELERY_ACKS_LATE = True,
 	CELERYD_PREFETCH_MULTIPLIER = 1)
 
-
+#converts the .msh to .xml
 def convertToXML(i):
 	meshes = glob.glob("msh/r*a" + str(i) + "n*.msh")
 	for fn in meshes:
 		gmsh2xml(fn, fn[:-3] + "xml")
 
+#runs the airfoil simulations
 def runAirfoil(d, i):
 	xmlFiles = glob.glob("msh/r*a" + str(i) + "n*.xml")
 	for fn in xmlFiles:
@@ -25,6 +26,9 @@ def runAirfoil(d, i):
 		subprocess.check_call(name, shell=True)
 		print "Finnished airfoil"
 
+#computes the taks. 
+#first creating the .msh, then converts them to .xml and finally runs the airfoil simulations
+#returns the drag_ligt.m file generated from airfoil
 @app.task()
 def computeResults(d, airfoil_params, i):
 	subprocess.check_call("sudo rm msh/*", shell=True)

@@ -1,20 +1,22 @@
 import os, sys, subprocess
 from novaclient.client import Client
 
-def substitute_line(new, old, file):
+#substitutes a line with another in a given file. 
+def substitute_line(new_line, old_line, file):
     f = open(file, "r")
     lines = f.readlines()
     f.close()
 
     f = open(file, "w")
     for line in lines:
-            if not old in line:
+            if not old_line in line:
                     f.write(line)
             else:
-                    f.write(new + '\n')
+                    f.write(new_line + '\n')
     f.close()
 
-# Create instance
+# Creates an instance with the right number (worker_number)
+# nc is the novaclient connection to use.
 def init_n(worker_number, nc):
     worker_name = "mat_test_%i" %(worker_number)
     import time 
@@ -32,6 +34,8 @@ def init_n(worker_number, nc):
     server = nc.servers.create(name = worker_name ,image = image.id,flavor = flavor.id,network = network.id,
      key_name = keypair.name, userdata = ud)
 
+#inits a range of new workers from w_left to number_of_workers
+#returns the number of workers initiated. 
 def init(w_left, number_of_workers):
     config = {'username':os.environ['OS_USERNAME'],
         'api_key':os.environ['OS_PASSWORD'],
@@ -47,12 +51,16 @@ def init(w_left, number_of_workers):
 
     return number_of_workers
 
+#terminates an instance based on it's number
+#nc is the novaclient connection to use
 def kill_n(i, nc):
     toTerminate = "mat_test_%i" %(i)
     serverToTerminate = nc.servers.find(name=toTerminate)
     serverToTerminate.delete()
     print("killed instance: %s" %(toTerminate))
 
+#terminates a range of running instances from w_left to number_of_workers.
+#returns the number of workers left
 def kill(w_left, number_of_workers):
     config = {'username':os.environ['OS_USERNAME'], 
           'api_key':os.environ['OS_PASSWORD'],
@@ -70,5 +78,3 @@ def kill(w_left, number_of_workers):
     subprocess.check_call("sudo rabbitmqctl add_vhost mafu", shell=True)
     subprocess.check_call('sudo rabbitmqctl set_permissions -p mafu ma ".*" ".*" ".*"', shell=True)
     return w_left
-
-# Terminate all your running instances

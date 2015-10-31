@@ -1,6 +1,8 @@
 import os
 import swiftclient.client
 
+#uploads files to the container. 
+#file_name is the name of the file and file_path is its location. 
 def put_file(file_name, file_path):
     config = {'user':os.environ['OS_USERNAME'],
     'key':os.environ['OS_PASSWORD'],
@@ -13,6 +15,8 @@ def put_file(file_name, file_path):
         file_data = f.read()
     conn.put_object('matstorage', file_name, file_data)
 
+#downloads files from the container. 
+#file_name is the name of the file and file_path is the destination. 
 def get_file(file_name, file_path):
     config = {'user':os.environ['OS_USERNAME'],
     'key':os.environ['OS_PASSWORD'],
